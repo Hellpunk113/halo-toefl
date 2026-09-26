@@ -1,0 +1,59 @@
+{
+  "result": "PASS",
+  "engine": "Microsoft Edge neural text to speech (build-time generation)",
+  "offline_runtime": true,
+  "assets": 110,
+  "format": "MP3",
+  "bytes": 17045936,
+  "total_minutes": 40.59,
+  "minimum_seconds": 1.51,
+  "maximum_seconds": 84.19,
+  "voices": [
+    {
+      "name": "en-US-AvaNeural",
+      "gender": "Female",
+      "character": "Expressive, caring, friendly"
+    },
+    {
+      "name": "en-US-EmmaNeural",
+      "gender": "Female",
+      "character": "Cheerful, clear, conversational"
+    },
+    {
+      "name": "en-US-AriaNeural",
+      "gender": "Female",
+      "character": "Positive, confident"
+    },
+    {
+      "name": "en-US-AndrewNeural",
+      "gender": "Male",
+      "character": "Warm, confident, authentic"
+    },
+    {
+      "name": "en-US-BrianNeural",
+      "gender": "Male",
+      "character": "Approachable, casual, sincere"
+    },
+    {
+      "name": "en-US-ChristopherNeural",
+      "gender": "Male",
+      "character": "Reliable, authoritative"
+    }
+  ],
+  "role_handling": [
+    "Woman and female student roles use female voices",
+    "Man, advisor, and technician roles use male voices",
+    "Professor, interviewer, host, and unspecified student roles alternate by context",
+    "Conversations are synthesized per speaker and joined into one question audio file",
+    "Academic talks use a slightly slower rate; conversational tasks use a natural conversational rate"
+  ],
+  "samples": [
+    "reports/neural-audio-samples/female-male-conversation.mp3",
+    "reports/neural-audio-samples/student-professor-conversation.mp3",
+    "reports/neural-audio-samples/interview-question.mp3"
+  ],
+  "decoded_assets": 110,
+  "decode_failures": [],
+  "input_artifact_failures": [],
+  "input_sanitization": "PDF page markers, page numbers, provider footers, section labels, and promotional copy are removed before synthesis"
+}

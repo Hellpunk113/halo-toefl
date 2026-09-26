@@ -1,0 +1,20 @@
+{
+  "test_id": "tstprep-2026",
+  "status": "PARTIAL",
+  "pages": 2,
+  "questions": {
+    "Reading": 0,
+    "Listening": 0,
+    "Speaking": 0,
+    "Writing": 0
+  },
+  "external_access_status": "BLOCKED_EXTERNAL_ACCESS",
+  "answer_keys": 0,
+  "audio_assets": 22,
+  "synthetic_audio_assets": 0,
+  "unmapped_audio_questions": [],
+  "errors": [
+    "BLOCKED_EXTERNAL_ACCESS: the complete test requires the provider's email/account flow; public sample audio and a writing rubric are not a complete question set."
+  ],
+  "source_failures": []
+}

@@ -1,0 +1,83 @@
+name: Build desktop release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build Windows executable
+        run: python -m PyInstaller --noconfirm --clean HALO-TOEFL-Windows.spec
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/HALO-TOEFL-Windows-x64.exe
+          if-no-files-found: error
+
+  macos:
+    name: macOS DMG
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build macOS application
+        run: python -m PyInstaller --noconfirm --clean HaloTOEFL-macOS.spec
+      - name: Create DMG
+        run: |
+          mkdir -p dmg
+          cp -R "dist/HALO TOEFL.app" dmg/
+          ln -s /Applications dmg/Applications
+          hdiutil create -volname "HALO TOEFL" -srcfolder dmg -ov -format UDZO "dist/HALO-TOEFL-macOS.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/HALO-TOEFL-macOS.dmg
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: HALO TOEFL 1.0.0
+          body: |
+            公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。
+
+            HALO TOEFL desktop release for internal beta use within Halo Education Research.
+
+            - Windows: download `HALO-TOEFL-Windows-x64.exe`.
+            - macOS: download `HALO-TOEFL-macOS.dmg`, drag HALO TOEFL to Applications, then open it from Applications.
+            - Attempts can be moved between platforms with the `.halo-save` export/import feature.
+
+            The macOS build is currently unsigned and may show the standard Gatekeeper warning on first launch.
+          files: |
+            artifacts/HALO-TOEFL-Windows-x64.exe
+            artifacts/HALO-TOEFL-macOS.dmg
+          fail_on_unmatched_files: true

@@ -1,0 +1,18 @@
+{
+  "test_id": "reach120-2026",
+  "status": "COMPLETE",
+  "pages": 22,
+  "questions": {
+    "Reading": 18,
+    "Listening": 10,
+    "Speaking": 6,
+    "Writing": 12
+  },
+  "external_access_status": "",
+  "answer_keys": 38,
+  "audio_assets": 10,
+  "synthetic_audio_assets": 6,
+  "unmapped_audio_questions": [],
+  "errors": [],
+  "source_failures": []
+}

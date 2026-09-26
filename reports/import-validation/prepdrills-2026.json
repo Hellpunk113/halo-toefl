@@ -1,0 +1,18 @@
+{
+  "test_id": "prepdrills-2026",
+  "status": "COMPLETE",
+  "pages": 24,
+  "questions": {
+    "Reading": 40,
+    "Listening": 34,
+    "Speaking": 11,
+    "Writing": 12
+  },
+  "external_access_status": "",
+  "answer_keys": 84,
+  "audio_assets": 45,
+  "synthetic_audio_assets": 45,
+  "unmapped_audio_questions": [],
+  "errors": [],
+  "source_failures": []
+}

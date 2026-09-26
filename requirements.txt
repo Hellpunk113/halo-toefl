@@ -1,0 +1,8 @@
+pypdf
+reportlab
+Pillow
+pygame
+sounddevice
+numpy
+imageio-ffmpeg
+pyinstaller

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Build output
+build/
+dist/
+.pyinstaller-cache/
+installer/*.exe
+*.dmg
+
+# Downloaded source packages and local QA output
+resources/raw/
+qa-*/
+reports/*.png
+reports/*.pdf
+resources/images/people/*.png
+
+# Local learner data
+*.sqlite3
+*.halo-save
+recordings/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

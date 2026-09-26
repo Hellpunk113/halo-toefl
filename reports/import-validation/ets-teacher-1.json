@@ -1,0 +1,18 @@
+{
+  "test_id": "ets-teacher-1",
+  "status": "COMPLETE",
+  "pages": 34,
+  "questions": {
+    "Reading": 39,
+    "Listening": 34,
+    "Speaking": 11,
+    "Writing": 12
+  },
+  "external_access_status": "",
+  "answer_keys": 83,
+  "audio_assets": 36,
+  "synthetic_audio_assets": 0,
+  "unmapped_audio_questions": [],
+  "errors": [],
+  "source_failures": []
+}
