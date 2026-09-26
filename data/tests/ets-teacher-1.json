@@ -616,12 +616,32 @@
       "stimulus": "The History of Photography \nThe history of photography is marked by significant technological progress and artistic innovation. It began \nin the early nineteenth century with the invention of the camera obscura, a device that projected images \nonto a surface. The first permanent photograph was created by Joseph-Nicéphore Niépce in 1826 using a \nprocess called heliography, which required several hours of exposure to light. Photography quickly evolved \nwith the development of daguerreotypes, introduced by Louis Daguerre in 1839. This method produced \ndetailed images on silver-plated copper, but daguerreotypes needed delicate handling, and the exposure \ntimes required, although much shorter, still remained impractical for recording images of moving objects. \nThe invention of the calotype by William Henry Fox T albot in the 1840s allowed for multiple copies of an \nimage to be made from a single negative, revolutionizing the field. (A) In the late nineteenth and early \ntwentieth centuries, the introduction of film and roll cameras made photography more accessible to the \npublic. (B) George Eastman’s establishment of the Kodak company in 1888 played a crucial role in this \ndemocratization, as his cameras were simple to use and affordable. (C) T oday, digital photography has \nfurther transformed the medium, allowing instant image capture and sharing. (D)",
       "prompt": "The word “innovation” in the passage is closest in meaning to",
       "choices": {
+        "A": "success",
+        "B": "advancement",
+        "C": "activity",
+        "D": "expression"
+      },
+      "answer": "B",
+      "transcript": "",
+      "audio": "",
+      "duration": 0
+    },
+    {
+      "id": "r2-17",
+      "section": "Reading",
+      "module": 2,
+      "number": 17,
+      "page": 10,
+      "type": "Read an Academic Passage",
+      "stimulus": "The History of Photography \nThe history of photography is marked by significant technological progress and artistic innovation. It began \nin the early nineteenth century with the invention of the camera obscura, a device that projected images \nonto a surface. The first permanent photograph was created by Joseph-Nicéphore Niépce in 1826 using a \nprocess called heliography, which required several hours of exposure to light. Photography quickly evolved \nwith the development of daguerreotypes, introduced by Louis Daguerre in 1839. This method produced \ndetailed images on silver-plated copper, but daguerreotypes needed delicate handling, and the exposure \ntimes required, although much shorter, still remained impractical for recording images of moving objects. \nThe invention of the calotype by William Henry Fox T albot in the 1840s allowed for multiple copies of an \nimage to be made from a single negative, revolutionizing the field. (A) In the late nineteenth and early \ntwentieth centuries, the introduction of film and roll cameras made photography more accessible to the \npublic. (B) George Eastman’s establishment of the Kodak company in 1888 played a crucial role in this \ndemocratization, as his cameras were simple to use and affordable. (C) T oday, digital photography has \nfurther transformed the medium, allowing instant image capture and sharing. (D)",
+      "prompt": "What is suggested about daguerreotypes?",
+      "choices": {
         "A": "They were introduced by Joseph-Nicéphore Niépce.",
         "B": "They allowed for multiple copies of an image.",
         "C": "They required shorter exposure times than heliographs did.",
         "D": "They made it unnecessary to use silver-plated copper."
       },
-      "answer": "B",
+      "answer": "C",
       "transcript": "",
       "audio": "",
       "duration": 0

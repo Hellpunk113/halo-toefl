@@ -1,9 +1,9 @@
 {
   "id": "exambooster-demo",
-  "name": "Exambooster 2026 Demo",
+  "name": "Exambooster 2026 Demo Question Bank",
   "provider": "Exambooster",
   "category": "THIRD_PARTY",
-  "status": "COMPLETE",
+  "status": "PARTIAL",
   "sections": [
     "Reading",
     "Listening",

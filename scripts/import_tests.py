@@ -271,7 +271,10 @@ def classify(section, context, prompt):
 
 def parse_questions(text, section, module, page, keys):
     # A PDF page may contain several questions; preserve page context for every one.
-    matches = list(re.finditer(r"(?im)^\s*(?:Question\s+(\d{1,2})|(\d{1,2})\.)\s*", text))
+    # Some ETS PDFs render a number as ``17 .``. Accept whitespace before the
+    # period so that the next question cannot be swallowed by the preceding
+    # question's final choice.
+    matches = list(re.finditer(r"(?im)^\s*(?:Question\s+(\d{1,2})|(\d{1,2})\s*\.)\s*", text))
     output = []
     active_context = clean_content_piece(text[:matches[0].start()]) if matches else ""
     for i, match in enumerate(matches):
@@ -673,7 +676,13 @@ def import_one(sid, records):
     listening = [q for q in questions if q["section"] == "Listening"]
     speaking = [q for q in questions if q["section"] == "Speaking"]
     counts = {s: sum(q["section"] == s for q in questions) for s in ("Reading", "Listening", "Speaking", "Writing")}
-    complete = all(counts.values()) and all(q["audio"] for q in listening + speaking)
+    expected_full_mock = {"Reading": 40, "Listening": 34, "Speaking": 11, "Writing": 12}
+    complete = counts == expected_full_mock and all(q["audio"] for q in listening + speaking)
+    if all(counts.values()) and counts != expected_full_mock:
+        errors.append(
+            "NOT_FULL_LENGTH: section counts do not match the 2026 full-mock shape "
+            f"{expected_full_mock}; imported as section practice only."
+        )
     blocked_external = sid == "tstprep-2026" and not any(counts.values())
     if blocked_external:
         errors.append("BLOCKED_EXTERNAL_ACCESS: the complete test requires the provider's email/account flow; public sample audio and a writing rubric are not a complete question set.")

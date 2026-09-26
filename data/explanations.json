@@ -1379,8 +1379,14 @@
     {
       "test_id": "ets-teacher-1",
       "question_id": "r2-16",
-      "zh": "正確答案是 B：「They allowed for multiple copies of an image.」「innovation」在此處的意思與「They allowed for multiple copies of an image.」最接近；代回原句後，句意和詞性都保持一致。",
-      "en": "The correct answer is B: “They allowed for multiple copies of an image.” In this context, “innovation” is closest in meaning to “They allowed for multiple copies of an image..” Substituting it preserves both the meaning and grammatical role of the original sentence."
+      "zh": "正確答案是 B：「advancement」「innovation」在此處的意思與「advancement」最接近；代回原句後，句意和詞性都保持一致。",
+      "en": "The correct answer is B: “advancement” In this context, “innovation” is closest in meaning to “advancement.” Substituting it preserves both the meaning and grammatical role of the original sentence."
+    },
+    {
+      "test_id": "ets-teacher-1",
+      "question_id": "r2-17",
+      "zh": "正確答案是 C：「They required shorter exposure times than heliographs did.」文章中的關鍵依據是：「This method produced detailed images on silver-plated copper, but daguerreotypes needed delicate handling, and the exposure times required, although much shorter, still remained impractical for recording images of moving objects.」這段內容最能支持正確選項；其他選項與材料的重點、細節或說話目的不符。",
+      "en": "The correct answer is C: “They required shorter exposure times than heliographs did.” The key evidence in the passage is: “This method produced detailed images on silver-plated copper, but daguerreotypes needed delicate handling, and the exposure times required, although much shorter, still remained impractical for recording images of moving objects.” This best supports the correct choice; the other choices do not match the main point, detail, or speaker purpose in the source."
     },
     {
       "test_id": "ets-teacher-1",

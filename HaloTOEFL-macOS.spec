@@ -53,8 +53,8 @@ app = BUNDLE(
     info_plist={
         'CFBundleDisplayName': 'HALO TOEFL',
         'CFBundleName': 'HALO TOEFL',
-        'CFBundleShortVersionString': '1.0.0',
-        'CFBundleVersion': '1',
+        'CFBundleShortVersionString': '1.0.1',
+        'CFBundleVersion': '2',
         'NSHighResolutionCapable': True,
         'NSMicrophoneUsageDescription': 'HALO TOEFL uses the microphone to record speaking practice responses.',
     },

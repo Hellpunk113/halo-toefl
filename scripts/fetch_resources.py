@@ -68,11 +68,11 @@ def source_list():
             audio = next((x for x in ets if re.search(rf"{stem}-{i}-audio", x, re.I) and x.lower().endswith(".zip")), audio_guess)
             yield sid, test, "ETS", "OFFICIAL_ETS", "PDF", pdf
             yield sid, test, "ETS", "OFFICIAL_ETS", "AUDIO_ZIP", audio
-    yield "exambooster-demo", "Exambooster 2026 Demo", "Exambooster", "THIRD_PARTY", "PDF", "https://toefl.exambooster.ru/content/toefl-demo/demo-toefl-tests.pdf"
-    yield "reach120-2026", "Reach120 2026 Complete Test", "Reach120", "THIRD_PARTY", "PDF", "https://www.reach120.com/downloads/pdf/toefl-2026-practice-test-answer-key.pdf"
+    yield "exambooster-demo", "Exambooster 2026 Demo Question Bank", "Exambooster", "THIRD_PARTY", "PDF", "https://toefl.exambooster.ru/content/toefl-demo/demo-toefl-tests.pdf"
+    yield "reach120-2026", "Reach120 2026 Section Practice", "Reach120", "THIRD_PARTY", "PDF", "https://www.reach120.com/downloads/pdf/toefl-2026-practice-test-answer-key.pdf"
     for url, sid, test, provider in [
-        ("https://www.reach120.com/downloads/toefl-practice-test", "reach120-2026", "Reach120 2026 Complete Test", "Reach120"),
-        ("https://tstprep.com/articles/toefl/complete-practice-test-for-the-toefl-test/", "tstprep-2026", "TST Prep 2026 Complete Test", "TST Prep"),
+        ("https://www.reach120.com/downloads/toefl-practice-test", "reach120-2026", "Reach120 2026 Section Practice", "Reach120"),
+        ("https://tstprep.com/articles/toefl/complete-practice-test-for-the-toefl-test/", "tstprep-2026", "TST Prep 2026 Samples", "TST Prep"),
         ("https://prepdrills.com/toefl-practice-test/", "prepdrills-2026", "PrepDrills 2026 Test", "PrepDrills")]:
         try:
             found = links(url)

@@ -19,7 +19,7 @@ def main():
     }
     store.db.close()
     print(values)
-    assert values == {"tests": 11, "complete": 10, "questions": 940, "explanations": 940}
+    assert values == {"tests": 11, "complete": 8, "questions": 941, "explanations": 941}
 
 
 if __name__ == "__main__":

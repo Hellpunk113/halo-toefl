@@ -1,4 +1,4 @@
-# HALO TOEFL 1.0.0
+# HALO TOEFL 1.0.1
 
 **公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。**
 
@@ -47,7 +47,7 @@ Download the Windows EXE or macOS DMG from the repository's Releases page. A `.h
 
 ## Source status
 
-The current import contains ten complete mocks: seven official ETS tests plus the Exambooster, PrepDrills, and Reach120 third-party sets. Third-party transcript-only items use role-aware male/female neural voices and are visibly labelled `AI-GENERATED NEURAL AUDIO — NOT ORIGINAL TEST AUDIO`. TST Prep remains partial because its complete question set requires the provider's external email/account flow; its public sample audio is preserved but is not presented as a mock. See `reports/import-validation/` for source-specific results.
+The current import contains eight full-length 97-question mocks: seven official ETS tests plus the PrepDrills set. Exambooster and Reach120 contain useful material in all four sections, but their source counts do not match a full 2026 mock, so the application presents them as section practice rather than complete tests. Third-party transcript-only items use role-aware male/female neural voices and are visibly labelled `AI-GENERATED NEURAL AUDIO — NOT ORIGINAL TEST AUDIO`. TST Prep remains partial because its complete question set requires the provider's external email/account flow; its public sample audio is preserved but is not presented as a mock. See `reports/import-validation/` for source-specific results.
 
 Generated speech input is sanitized before synthesis so PDF page markers, page numbers, provider footers, section labels, and promotional copy are never spoken.
 

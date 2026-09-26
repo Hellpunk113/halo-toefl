@@ -1,6 +1,6 @@
 {
   "test_id": "reach120-2026",
-  "status": "COMPLETE",
+  "status": "PARTIAL",
   "pages": 22,
   "questions": {
     "Reading": 18,
@@ -13,6 +13,8 @@
   "audio_assets": 10,
   "synthetic_audio_assets": 6,
   "unmapped_audio_questions": [],
-  "errors": [],
+  "errors": [
+    "NOT_FULL_LENGTH: section counts do not match the 2026 full-mock shape {'Reading': 40, 'Listening': 34, 'Speaking': 11, 'Writing': 12}; imported as section practice only."
+  ],
   "source_failures": []
 }
