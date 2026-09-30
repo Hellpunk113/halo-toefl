@@ -34,6 +34,20 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: v1.0.2
+      - name: Set macOS version to 1.0.3
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          init = Path("halo/__init__.py")
+          init.write_text('__version__ = "1.0.3"\n', encoding="utf-8")
+          spec = Path("HaloTOEFL-macOS.spec")
+          text = spec.read_text(encoding="utf-8")
+          text = text.replace("'CFBundleShortVersionString': '1.0.2'", "'CFBundleShortVersionString': '1.0.3'")
+          text = text.replace("'CFBundleVersion': '3'", "'CFBundleVersion': '4'")
+          spec.write_text(text, encoding="utf-8")
+          PY
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -81,18 +95,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           name: HALO TOEFL ${{ github.ref_name }}
-          body: |
-            公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。
-
-            HALO TOEFL desktop release for internal beta use within Halo Education Research.
-
-            This release adds the new HALO TOEFL application icon to the Windows and macOS packages. It retains the corrected 97-question full-mock structure and remains compatible with `.halo-save` files exported by v1.0.1.
-
-            - Windows: download `HALO-TOEFL-Windows-x64.exe`.
-            - macOS: download `HALO-TOEFL-macOS.dmg`, drag HALO TOEFL to Applications, then open it from Applications.
-            - Attempts can be moved between platforms with the `.halo-save` export/import feature.
-
-            The macOS build is currently unsigned and may show the standard Gatekeeper warning on first launch.
+          draft: true
           files: |
             artifacts/HALO-TOEFL-Windows-x64.exe
             artifacts/HALO-TOEFL-macOS.dmg

@@ -172,12 +172,103 @@ class HaloApp(tk.Tk):
             try: pygame.mixer.init()
             except Exception: pass
         self.show_home()
+        if os.name == "nt":
+            self.after(40, self._poll_local_control)
 
     def tr(self, text):
         return ZH.get(text, text) if self.lang == "zh-TW" else text
 
     def section_name(self, text):
         return self.tr(text)
+
+    def _poll_local_control(self):
+        """Run local companion commands inside HALO's own Tk event loop."""
+        try:
+            raw = self.store.setting("__halo_bad_student_command__", "")
+            if raw:
+                self.store.set_setting("__halo_bad_student_command__", "")
+                command = json.loads(raw)
+                response = self._run_local_control(command)
+                response["id"] = str(command.get("id") or "")
+                response["bridge_version"] = 1
+                self.store.set_setting(
+                    "__halo_bad_student_response__",
+                    json.dumps(response, ensure_ascii=False),
+                )
+        except Exception as exc:
+            try:
+                self.store.set_setting(
+                    "__halo_bad_student_response__",
+                    json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False),
+                )
+            except Exception:
+                pass
+        if self.winfo_exists():
+            self.after(20, self._poll_local_control)
+
+    def _run_local_control(self, command):
+        if command.get("action") != "bulk_auto_answer":
+            return {"ok": False, "error": "unsupported command"}
+        attempt_id = str(command.get("attempt_id") or "")
+        if not self.current_attempt or attempt_id != self.current_attempt:
+            return {"ok": False, "error": "the selected attempt is not open"}
+        answers = command.get("answers") or {}
+        allowed = {
+            section for section in command.get("sections", [])
+            if section in ("Reading", "Listening")
+        }
+        if not isinstance(answers, dict) or not allowed:
+            return {"ok": False, "error": "no eligible answers"}
+
+        started = time.perf_counter()
+        if pygame:
+            try:
+                pygame.mixer.music.stop()
+            except Exception:
+                pass
+        now = datetime.now().astimezone().isoformat()
+        index = self.exam_index
+        completed = 0
+        while index < len(self.exam_questions):
+            question = self.exam_questions[index]
+            choices = question.get("choices") or {}
+            answer = str(answers.get(question["id"]) or "")
+            if question.get("section") not in allowed or not choices or answer not in choices:
+                break
+            self.store.db.execute(
+                "INSERT OR REPLACE INTO answers VALUES(?,?,?,?)",
+                (attempt_id, question["id"], answer, now),
+            )
+            completed += 1
+            index += 1
+        if completed:
+            self.store.db.execute("INSERT OR REPLACE INTO daily_activity VALUES(?,?)", (now[:10], now))
+            self.store.db.commit()
+
+        if index >= len(self.exam_questions):
+            self.exam_index = len(self.exam_questions) - 1
+            self.store.progress(attempt_id, self.exam_index, int(time.time() - self.exam_started))
+            self.store.finish(attempt_id)
+            self.current_attempt = None
+            self.show_results(attempt_id)
+            state = "COMPLETE"
+        elif completed:
+            self.exam_index = index
+            self.save_progress()
+            next_question = self.exam_questions[self.exam_index]
+            if next_question.get("section") == "Listening":
+                self.audio_played.add(next_question["id"])
+            self.show_exam()
+            state = "IN_PROGRESS"
+        else:
+            state = "NO_ELIGIBLE_QUESTION"
+        return {
+            "ok": True,
+            "completed": completed,
+            "index": self.exam_index,
+            "status": state,
+            "elapsed_ms": round((time.perf_counter() - started) * 1000, 1),
+        }
 
     def status_name(self, text):
         return self.tr(text)
