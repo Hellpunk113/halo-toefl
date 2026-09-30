@@ -85,7 +85,25 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           name: HALO TOEFL ${{ github.ref_name }}
-          draft: true
+          body: |
+            公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。
+
+            ### v1.0.6 更新內容
+            - 首頁最近作答會即時同步修改後的日期、時間、總時長與狀態。
+            - 口說部分新增「完全跳過口說」，避免麥克風異常阻塞整套測驗。
+            - 寫作材料與輸入區改為左右分欄，長題目不再擠走輸入框。
+            - 上一題／下一題按鈕固定顯示在測驗視窗底部。
+            - 保留 1.0.4 的閱讀填詞與題庫排版修正。
+            - 繼續相容 v1.0.1 及之後版本匯出的 `.halo-save` 存檔。
+
+            ### 下載
+            - Windows：`HALO-TOEFL-Windows-x64.exe`
+            - macOS：`HALO-TOEFL-macOS.dmg`
+
+            macOS 版本目前未簽署，第一次開啟時可能顯示 Gatekeeper 提示。
+          draft: false
+          prerelease: false
+          make_latest: true
           files: |
             artifacts/HALO-TOEFL-Windows-x64.exe
             artifacts/HALO-TOEFL-macOS.dmg

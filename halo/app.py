@@ -99,7 +99,7 @@ ZH = {
     "words · saved":"字 · 已儲存", "Microphone check: speak normally and watch the input meter before recording.":"麥克風檢查：請正常說話並查看輸入音量。", "Start Recording":"開始錄音",
     "Play Prompt":"播放題目音訊", "Responses are saved as WAV in your local HALO TOEFL recordings folder.":"回答將以 WAV 格式儲存在本機 HALO TOEFL 錄音資料夾。", "Stop Recording":"停止錄音", "Recorded · Record Again":"已錄音 · 重新錄製",
     "Microphone unavailable":"麥克風無法使用", "The audio recording component is unavailable.":"錄音元件無法使用。", "Microphone error":"麥克風錯誤", "Recording error":"錄音錯誤", "Playback error":"播放錯誤",
-    "Back":"上一題", "Next":"下一題", "Finish":"完成", "section":"科", "is about to begin. Your progress is saved automatically.":"即將開始，作答進度會自動儲存。",
+    "Back":"上一題", "Next":"下一題", "Finish":"完成", "Skip Speaking Section":"完全跳過口說", "Speaking is temporarily unavailable. You can skip the whole section and finish this attempt.":"口說目前暫時無法使用，你可以完全跳過口說並完成這次測驗。", "section":"科", "is about to begin. Your progress is saved automatically.":"即將開始，作答進度會自動儲存。",
     "Mock Test Complete":"模考完成", "estimated":"預估", "Completed":"已完成", "Not completed":"未完成", "answered":"已作答", "Total time":"總時間", "minutes":"分鐘",
     "Review":"檢討", "Export Daily Report":"匯出每日報告", "Back to Home":"返回首頁", "My answer":"我的答案", "Correct answer":"正確答案", "Manual review":"人工評閱", "Replay audio":"重播音訊",
     "Explanation":"解析", "Review locked":"解析尚未開放", "Complete the test before viewing answers and explanations.":"完成整份測驗後才能查看答案與解析。",
@@ -326,12 +326,28 @@ class HaloApp(tk.Tk):
             self.button(resume, self.tr("Discard"), lambda: (self.store.finish(unfinished["id"], "DISCARDED"), self.show_home()), False).pack(side="right", padx=4, pady=8)
         recent = self.card(body); recent.pack(fill="both", expand=True, pady=(20,0))
         tk.Label(recent, text=self.tr("Recent attempts"), font=(UI_FONT, 14, "bold"), bg="white", fg=INK).pack(anchor="w", padx=20, pady=(18,10))
-        rows = self.store.db.execute("SELECT a.*,t.name FROM attempts a JOIN tests t ON a.test_id=t.id ORDER BY a.started DESC LIMIT 8").fetchall()
-        if not rows: tk.Label(recent, text=self.tr("No attempts yet."), bg="white", fg=MUTED).pack(anchor="w", padx=20, pady=14)
-        for r in rows:
-            line = tk.Frame(recent, bg="white"); line.pack(fill="x", padx=20, pady=5)
-            tk.Label(line, text=f"{r['name']}  ·  {self.tr(r['mode'])}  ·  {self.tr(r['status'])}", bg="white", fg=INK, font=(UI_FONT,10)).pack(side="left")
-            tk.Label(line, text=r["started"][:19].replace("T"," "), bg="white", fg=MUTED).pack(side="right")
+        recent_rows=tk.Frame(recent,bg="white");recent_rows.pack(fill="both",expand=True)
+        home_generation=self.timer_generation
+        recent_signature=[None]
+        def refresh_recent_attempts():
+            if home_generation!=self.timer_generation or not recent_rows.winfo_exists():return
+            try:
+                rows=self.store.db.execute("SELECT a.*,t.name FROM attempts a JOIN tests t ON a.test_id=t.id ORDER BY a.started DESC LIMIT 8").fetchall()
+                signature=tuple((r["id"],r["started"],r["ended"],r["status"],r["elapsed_seconds"],r["index_position"]) for r in rows)
+                if signature!=recent_signature[0]:
+                    recent_signature[0]=signature
+                    for child in recent_rows.winfo_children():child.destroy()
+                    if not rows:tk.Label(recent_rows,text=self.tr("No attempts yet."),bg="white",fg=MUTED).pack(anchor="w",padx=20,pady=14)
+                    for r in rows:
+                        line=tk.Frame(recent_rows,bg="white");line.pack(fill="x",padx=20,pady=5)
+                        tk.Label(line,text=f"{r['name']}  ·  {self.tr(r['mode'])}  ·  {self.tr(r['status'])}",bg="white",fg=INK,font=(UI_FONT,10)).pack(side="left")
+                        stamp=(r["started"] or "")[:19].replace("T"," ")
+                        elapsed=max(0,int(r["elapsed_seconds"] or 0))
+                        duration=f"{elapsed//60}:{elapsed%60:02d}"
+                        tk.Label(line,text=f"{stamp}  ·  {self.tr('Total time')} {duration}",bg="white",fg=MUTED).pack(side="right")
+            finally:
+                if home_generation==self.timer_generation and recent_rows.winfo_exists():self.after(500,refresh_recent_attempts)
+        refresh_recent_attempts()
 
     def start_full_mock(self):
         choices = [t for t in self.store.tests() if t["status"] == "COMPLETE"]
@@ -496,8 +512,8 @@ class HaloApp(tk.Tk):
         else:
             progress=(f"第 {self.exam_index+1} 題，共 {total} 題  ·  模組 {q['module']}" if self.lang=="zh-TW" else f"Question {self.exam_index+1} of {total}  ·  Module {q['module']}")
         tk.Label(prog,text=progress,bg="#e8eef4",fg=INK).pack(anchor="w",padx=28,pady=9)
-        # Reserve navigation before expandable content so editors and passages
-        # can never push the Next button below the window.
+        # Reserve the navigation bar before expandable editors and passages so
+        # writing tasks can never push the Next button below the window.
         footer=tk.Frame(self,bg="white");footer.pack(side="bottom",fill="x",padx=35,pady=(0,22))
         content=tk.Frame(self,bg="white");content.pack(fill="both",expand=True,padx=28,pady=20)
         if q["section"]=="Listening": self.play_question_audio(q, auto=True)
@@ -550,7 +566,7 @@ class HaloApp(tk.Tk):
         if not split_writing:
             tk.Label(question_parent,text=prompt,font=(UI_FONT,17,"bold"),bg="white",fg=INK,wraplength=520 if split_reading else 920,justify="left").pack(anchor="w",pady=(4,20))
         if q["section"]=="Writing": self.show_writing(question_parent,q)
-        elif q["section"]=="Speaking": self.show_speaking(question_parent,q)
+        elif q["section"]=="Speaking": self.show_speaking_skip(question_parent)
         elif q["type"]!="Complete the Words": self.show_choices(question_parent,q)
         if self.exam_index>0 and q["section"]!="Listening" and self.exam_questions[self.exam_index-1]["section"]==q["section"] and self.exam_questions[self.exam_index-1]["module"]==q["module"]:
             self.button(footer,self.tr("Back"),self.back,False).pack(side="left")
@@ -732,6 +748,24 @@ class HaloApp(tk.Tk):
         self.record_button=self.button(parent,self.tr("Start Recording"),lambda:self.toggle_recording(q));self.record_button.pack(anchor="w",pady=8)
         if q["audio"]: self.button(parent,self.tr("Play Prompt"),lambda:self.play_question_audio(q,False),False).pack(anchor="w")
         tk.Label(parent,text=self.tr("Responses are saved as WAV in your local HALO TOEFL recordings folder."),bg="white",fg=MUTED).pack(anchor="w",pady=10)
+
+    def show_speaking_skip(self,parent):
+        tk.Label(parent,text=self.tr("Speaking is temporarily unavailable. You can skip the whole section and finish this attempt."),font=(UI_FONT,15),bg="white",fg=INK,wraplength=760,justify="left").pack(anchor="w",pady=(10,22))
+        self.button(parent,self.tr("Skip Speaking Section"),self.skip_speaking_section).pack(anchor="w")
+
+    def skip_speaking_section(self):
+        if not self.current_attempt:return
+        if pygame:
+            try:pygame.mixer.music.stop()
+            except Exception:pass
+        if self.recording is not None and sd:
+            try:sd.stop()
+            except Exception:pass
+            self.recording=None
+        next_index=next((i for i in range(self.exam_index+1,len(self.exam_questions)) if self.exam_questions[i]["section"]!="Speaking"),None)
+        if next_index is None:
+            self.finish_attempt();return
+        self.exam_index=next_index;self.save_progress();self.instructions(self.exam_questions[next_index]["section"]);self.show_exam()
 
     def monitor_meter(self):
         if not self.current_attempt or not hasattr(self,"meter"): return
