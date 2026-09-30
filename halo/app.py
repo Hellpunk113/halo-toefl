@@ -120,6 +120,7 @@ ZH = {
     "The timer counts down separately for each section.":"各科將分別依官方時長倒數。", "Start Test":"開始測驗",
     "Countdown off":"倒數計時已關閉", "Time is up":"時間到", "The section time has ended.":"本科作答時間已結束。",
     "Reading passage":"閱讀文章", "Answer area":"作答區", "Type only the missing letters in the blank.":"請直接在文章空格內輸入缺少的字母。",
+    "Complete all ten blanks directly in the passage.":"請直接在文章中完成全部十個空格。", "This word-completion group could not be displayed correctly.":"這組填詞題無法正確顯示，請重新載入題庫。",
     "Section time":"科目", "Question time":"本題", "Audio playing":"音訊播放中",
 }
 
@@ -283,6 +284,7 @@ class HaloApp(tk.Tk):
     def clear(self):
         self.timer_generation += 1
         self.unbind_all("<MouseWheel>")
+        self.cloze_fields = []
         for child in self.winfo_children(): child.destroy()
 
     def header(self, title, subtitle="", show_home_button=True):
@@ -455,10 +457,32 @@ class HaloApp(tk.Tk):
             if self.countdown_enabled and self.timer_question:
                 self.store.set_question_time(self.current_attempt,self.timer_question,self.question_remaining)
 
+    def cloze_group_bounds(self, index):
+        """Return the contiguous Complete-the-Words group containing index."""
+        if not self.exam_questions or not (0 <= index < len(self.exam_questions)):
+            return index, index
+        question=self.exam_questions[index]
+        if question["section"]!="Reading" or question["type"]!="Complete the Words":
+            return index, index
+        signature=(question["section"],question["module"],question["type"],question["stimulus"])
+        start=end=index
+        while start>0:
+            previous=self.exam_questions[start-1]
+            if (previous["section"],previous["module"],previous["type"],previous["stimulus"])!=signature:break
+            start-=1
+        while end+1<len(self.exam_questions):
+            following=self.exam_questions[end+1]
+            if (following["section"],following["module"],following["type"],following["stimulus"])!=signature:break
+            end+=1
+        return start,end
+
     def show_exam(self):
+        cloze_start,cloze_end=self.cloze_group_bounds(self.exam_index)
+        if cloze_start!=self.exam_index:self.exam_index=cloze_start
         self.clear(); q=self.exam_questions[self.exam_index]; total=len(self.exam_questions)
+        cloze_questions=self.exam_questions[cloze_start:cloze_end+1] if q["type"]=="Complete the Words" else []
         self.activate_section_timer(q["section"])
-        self.activate_question_timer(q)
+        self.activate_question_timer(q,len(cloze_questions) if cloze_questions else 1)
         self.configure(bg="white")
         top=tk.Frame(self,bg=NAVY);top.pack(fill="x")
         tk.Label(top,text=f"{self.section_name(q['section'])}  ·  {self.tr(q['type'])}",bg=NAVY,fg="white",font=(UI_FONT,13,"bold")).pack(side="left",padx=26,pady=15)
@@ -467,7 +491,10 @@ class HaloApp(tk.Tk):
         generation=self.timer_generation
         self.tick_timer(generation)
         prog=tk.Frame(self,bg="#e8eef4");prog.pack(fill="x")
-        progress=(f"第 {self.exam_index+1} 題，共 {total} 題  ·  模組 {q['module']}" if self.lang=="zh-TW" else f"Question {self.exam_index+1} of {total}  ·  Module {q['module']}")
+        if cloze_questions:
+            progress=(f"第 {cloze_start+1}–{cloze_end+1} 題，共 {total} 題  ·  模組 {q['module']}" if self.lang=="zh-TW" else f"Questions {cloze_start+1}–{cloze_end+1} of {total}  ·  Module {q['module']}")
+        else:
+            progress=(f"第 {self.exam_index+1} 題，共 {total} 題  ·  模組 {q['module']}" if self.lang=="zh-TW" else f"Question {self.exam_index+1} of {total}  ·  Module {q['module']}")
         tk.Label(prog,text=progress,bg="#e8eef4",fg=INK).pack(anchor="w",padx=28,pady=9)
         content=tk.Frame(self,bg="white");content.pack(fill="both",expand=True,padx=28,pady=20)
         if q["section"]=="Listening": self.play_question_audio(q, auto=True)
@@ -485,7 +512,7 @@ class HaloApp(tk.Tk):
                 panes.after_idle(place)
             panes.bind("<Configure>",center_sash)
             tk.Label(left,text=self.tr("Reading passage"),font=(UI_FONT,10,"bold"),bg="#e8eef4",fg=NAVY,padx=14,pady=9).pack(fill="x")
-            if q["type"]=="Complete the Words": self.show_cloze_passage(left,q)
+            if q["type"]=="Complete the Words": self.show_cloze_passage(left,cloze_questions)
             else: self.show_stimulus(left,q["stimulus"])
             question_parent=right
             tk.Label(right,text=self.tr("Answer area"),font=(UI_FONT,10,"bold"),bg="white",fg=BLUE).pack(anchor="w",pady=(0,12))
@@ -503,15 +530,15 @@ class HaloApp(tk.Tk):
             if q["stimulus"]: self.show_stimulus(content,q["stimulus"],height=10)
         if q["section"]=="Listening":
             tk.Label(question_parent,text=self.tr("Audio plays once during the exam."),bg="white",fg=MUTED).pack(anchor="w",pady=(0,10))
-        prompt = self.tr("Type only the missing letters in the blank.") if q["type"]=="Complete the Words" else q["prompt"]
+        prompt = self.tr("Complete all ten blanks directly in the passage.") if q["type"]=="Complete the Words" else q["prompt"]
         tk.Label(question_parent,text=prompt,font=(UI_FONT,17,"bold"),bg="white",fg=INK,wraplength=520 if split_reading else 920,justify="left").pack(anchor="w",pady=(4,20))
         if q["section"]=="Writing": self.show_writing(question_parent,q)
         elif q["section"]=="Speaking": self.show_speaking(question_parent,q)
         elif q["type"]!="Complete the Words": self.show_choices(question_parent,q)
         footer=tk.Frame(self,bg="white");footer.pack(fill="x",padx=35,pady=(0,22))
-        if self.exam_index>0 and not (q["section"]=="Listening") and self.exam_questions[self.exam_index-1]["section"]==q["section"]:
+        if self.exam_index>0 and q["section"]!="Listening" and self.exam_questions[self.exam_index-1]["section"]==q["section"] and self.exam_questions[self.exam_index-1]["module"]==q["module"]:
             self.button(footer,self.tr("Back"),self.back,False).pack(side="left")
-        next_text=self.tr("Finish") if self.exam_index==total-1 else self.tr("Next")
+        next_text=self.tr("Finish") if (cloze_end if cloze_questions else self.exam_index)==total-1 else self.tr("Next")
         self.button(footer,next_text,self.next).pack(side="right")
 
     def activate_section_timer(self, section):
@@ -524,7 +551,7 @@ class HaloApp(tk.Tk):
             self.timer_remaining=self.store.section_time(self.current_attempt,section,SECTION_SECONDS[section])
             self.timer_timeout_handled=False
 
-    def activate_question_timer(self, question):
+    def activate_question_timer(self, question, item_count=1):
         timed = self.countdown_enabled and question["type"] in ITEM_SECONDS
         question_id = question["id"] if timed else None
         if self.timer_question != question_id:
@@ -532,7 +559,7 @@ class HaloApp(tk.Tk):
                 self.store.set_question_time(self.current_attempt,self.timer_question,self.question_remaining)
             self.timer_question=question_id
             if question_id:
-                self.question_remaining=self.store.question_time(self.current_attempt,question_id,ITEM_SECONDS[question["type"]])
+                self.question_remaining=self.store.question_time(self.current_attempt,question_id,ITEM_SECONDS[question["type"]]*max(1,item_count))
             self.question_timeout_handled=False
 
     def tick_timer(self, generation):
@@ -601,51 +628,43 @@ class HaloApp(tk.Tk):
         scroll.pack(side="right",fill="y");stim.pack(side="left",fill="both",expand=True)
         stim.insert("1.0",text);stim.configure(state="disabled")
 
-    def show_cloze_passage(self,parent,q):
+    def show_cloze_passage(self,parent,questions):
         box=tk.Frame(parent,bg="#f7f9fb");box.pack(fill="both",expand=True,padx=12,pady=12)
         text=tk.Text(box,wrap="word",font=(UI_FONT,14),bg="#f7f9fb",fg=INK,relief="flat",padx=12,pady=10,spacing2=4)
         scroll=ttk.Scrollbar(box,orient="vertical",command=text.yview);text.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right",fill="y");text.pack(side="left",fill="both",expand=True)
         pattern=re.compile(r"(?P<prefix>[A-Za-z]+)(?P<between>[ \t\r\n]*)(?P<gap>_+(?:[ \t]*_+)*|-+(?:[ \t\r\n]*-+)*(?![ \t\r\n]*[A-Za-z]))(?P<label>\d{1,2})?")
-        matches=list(pattern.finditer(q["stimulus"]))
-        blank=int((re.search(r"blank\s+(\d+)",q["prompt"],re.I) or [None,"1"])[1])
-        target=next((m for m in matches if m.group("label") and int(m.group("label"))==blank),None)
-        correct=q.get("correct","")
-        if target is None and correct:
-            whole_matches=[m for m in matches if correct.lower().startswith(m.group("prefix").lower()) and len(correct)>len(m.group("prefix"))]
-            if whole_matches: target=max(whole_matches,key=lambda m:len(m.group("prefix")))
-        if target is None and 0 < blank <= len(matches):target=matches[blank-1]
-        self.answer_var=tk.StringVar(value="")
-        self.cloze_prefix="";self.cloze_store_whole=False
+        stimulus=questions[0]["stimulus"] if questions else ""
+        matches=list(pattern.finditer(stimulus))
+        if len(matches)!=len(questions):
+            text.insert("end",stimulus)
+            text.configure(state="disabled")
+            tk.Label(parent,text=self.tr("This word-completion group could not be displayed correctly."),bg="#fff4cf",fg="#7a5900",wraplength=420,justify="left",padx=10,pady=8).pack(fill="x",padx=12,pady=(0,12))
+            return
+        self.cloze_fields=[]
         cursor=0
-        for match in matches:
+        first_entry=None
+        for match,q in zip(matches,questions):
             if match.end() <= cursor:
                 continue
-            text.insert("end",q["stimulus"][cursor:match.start("gap")])
+            text.insert("end",stimulus[cursor:match.start("gap")])
             count=sum(match.group("gap").count(char) for char in "_-")
-            if match is target:
-                prefix=match.group("prefix")
-                self.cloze_prefix=prefix
-                self.cloze_store_whole=bool(correct.lower().startswith(prefix.lower()) and len(correct)>count)
-                skip_end=match.end()
-                if correct.lower().startswith(prefix.lower()) and len(correct)>len(prefix):
-                    count=len(correct)-len(prefix)
-                    self.cloze_store_whole=True
-                    residue=re.match(r"(?:[ \t]*[A-Za-z]?[ \t]*[_-]+)*",q["stimulus"][skip_end:])
-                    if residue:skip_end+=residue.end()
-                stored=self.store.answer(self.current_attempt,q["id"])
-                if self.cloze_store_whole and stored.lower().startswith(prefix.lower()):stored=stored[len(prefix):]
-                self.answer_var.set(stored[:count])
-                validate=(self.register(lambda value,n=count: value=="" or (len(value)<=n and value.isalpha())),"%P")
-                entry=tk.Entry(text,textvariable=self.answer_var,width=max(2,count+1),font=(UI_FONT,14,"bold"),justify="center",validate="key",validatecommand=validate,relief="solid",bd=2)
-                text.window_create("end",window=entry,padx=2)
-                self.after(80,entry.focus_set)
-                cursor=skip_end
-            else:
-                text.insert("end","_"*count)
-                cursor=match.end()
-        text.insert("end",q["stimulus"][cursor:])
+            prefix=match.group("prefix")
+            correct=str(q.get("correct", ""))
+            store_whole=bool(correct.lower().startswith(prefix.lower()) and len(correct)>len(prefix))
+            if store_whole:count=len(correct)-len(prefix)
+            stored=self.store.answer(self.current_attempt,q["id"])
+            if store_whole and stored.lower().startswith(prefix.lower()):stored=stored[len(prefix):]
+            variable=tk.StringVar(value=stored[:count])
+            validate=(self.register(lambda value,n=count: value=="" or (len(value)<=n and value.isalpha())),"%P")
+            entry=tk.Entry(text,textvariable=variable,width=max(2,count+1),font=(UI_FONT,14,"bold"),justify="center",validate="key",validatecommand=validate,relief="solid",bd=2)
+            text.window_create("end",window=entry,padx=2)
+            self.cloze_fields.append({"question":q,"variable":variable,"prefix":prefix,"store_whole":store_whole})
+            if first_entry is None:first_entry=entry
+            cursor=match.end()
+        text.insert("end",stimulus[cursor:])
         text.configure(state="disabled")
+        if first_entry:self.after(80,first_entry.focus_set)
 
     def show_choices(self,parent,q):
         self.answer_var=tk.StringVar(value=self.store.answer(self.current_attempt,q["id"]))
@@ -746,12 +765,16 @@ class HaloApp(tk.Tk):
     def next(self):
         q=self.exam_questions[self.exam_index]
         self.save_current_answer()
-        if self.exam_index==len(self.exam_questions)-1: self.finish_attempt();return
-        if self.exam_questions[self.exam_index+1]["section"]!=q["section"]: self.instructions(self.exam_questions[self.exam_index+1]["section"])
-        self.exam_index+=1;self.save_progress();self.show_exam()
+        _,group_end=self.cloze_group_bounds(self.exam_index)
+        next_index=group_end+1
+        if next_index>=len(self.exam_questions): self.finish_attempt();return
+        if self.exam_questions[next_index]["section"]!=q["section"]: self.instructions(self.exam_questions[next_index]["section"])
+        self.exam_index=next_index;self.save_progress();self.show_exam()
 
     def back(self):
-        self.save_current_answer();self.exam_index=max(0,self.exam_index-1);self.save_progress();self.show_exam()
+        self.save_current_answer();previous=max(0,self.exam_index-1)
+        self.exam_index=self.cloze_group_bounds(previous)[0]
+        self.save_progress();self.show_exam()
 
     def exit_exam(self):
         if not self.current_attempt:return
@@ -764,12 +787,15 @@ class HaloApp(tk.Tk):
     def save_current_answer(self):
         if not self.current_attempt or not self.exam_questions:return
         q=self.exam_questions[self.exam_index]
-        if q["section"]=="Writing" and hasattr(self,"editor"):
+        if q["type"]=="Complete the Words" and getattr(self,"cloze_fields",None):
+            for field in self.cloze_fields:
+                answer=field["variable"].get()
+                if field["store_whole"]:answer=field["prefix"]+answer
+                self.store.save_answer(self.current_attempt,field["question"]["id"],answer)
+        elif q["section"]=="Writing" and hasattr(self,"editor"):
             self.store.save_writing(self.current_attempt,q["id"],self.editor.get("1.0","end-1c"))
         elif q["section"]!="Speaking" and hasattr(self,"answer_var"):
             answer=self.answer_var.get()
-            if q["type"]=="Complete the Words" and self.cloze_store_whole:
-                answer=self.cloze_prefix+answer
             self.store.save_answer(self.current_attempt,q["id"],answer)
 
     def instructions(self,section):

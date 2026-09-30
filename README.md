@@ -1,4 +1,4 @@
-# HALO TOEFL 1.0.2
+# HALO TOEFL 1.0.4
 
 **公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。**
 
@@ -55,7 +55,7 @@ The application stores personal data under `%LOCALAPPDATA%\HALO TOEFL` on Window
 
 ## Releases
 
-Download the Windows EXE or macOS DMG from the repository's Releases page. A `.halo-save` archive exported by v1.0.1 or v1.0.2 on one platform can be imported on the other without replacing previous attempts.
+Download the Windows EXE or macOS DMG from the repository's Releases page. A `.halo-save` archive exported by v1.0.1 or any later version on one platform can be imported on the other without replacing previous attempts.
 
 ## Source status
 

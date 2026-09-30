@@ -36,7 +36,7 @@ def export_save(store, destination: str | Path) -> dict:
         "version": VERSION,
         "exported_at": datetime.now().astimezone().isoformat(),
         "tests": [], "sections": [], "questions": [], "explanations": [],
-        "attempts": attempts, "section_timers": [], "question_timers": [],
+        "attempts": attempts, "section_timers": [], "question_timers": [], "module_times": [],
         "answers": [], "writing_responses": [], "speaking_recordings": [],
     }
     for test_id in sorted(test_ids):
@@ -49,6 +49,7 @@ def export_save(store, destination: str | Path) -> dict:
     for attempt_id in sorted(attempt_ids):
         data["section_timers"].extend(_rows(store, "attempt_section_timers", "attempt_id=?", (attempt_id,)))
         data["question_timers"].extend(_rows(store, "attempt_question_timers", "attempt_id=?", (attempt_id,)))
+        data["module_times"].extend(_rows(store, "attempt_module_times", "attempt_id=?", (attempt_id,)))
         data["answers"].extend(_rows(store, "answers", "attempt_id=?", (attempt_id,)))
         data["writing_responses"].extend(_rows(store, "writing_responses", "attempt_id=?", (attempt_id,)))
 
@@ -149,6 +150,7 @@ def import_save(store, source: str | Path) -> dict:
         related = {
             "section_timers": ("attempt_section_timers", ("attempt_id", "section", "remaining_seconds", "updated")),
             "question_timers": ("attempt_question_timers", ("attempt_id", "question_id", "remaining_seconds", "updated")),
+            "module_times": ("attempt_module_times", ("attempt_id", "section", "module", "elapsed_seconds", "updated")),
             "answers": ("answers", ("attempt_id", "question_id", "answer", "updated")),
             "writing_responses": ("writing_responses", ("attempt_id", "question_id", "response", "updated")),
         }
@@ -193,6 +195,7 @@ def clear_local_records(store) -> None:
         DELETE FROM writing_responses;
         DELETE FROM answers;
         DELETE FROM attempt_question_timers;
+        DELETE FROM attempt_module_times;
         DELETE FROM attempt_section_timers;
         DELETE FROM attempts;
         DELETE FROM daily_activity;

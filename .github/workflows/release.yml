@@ -21,6 +21,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+      - name: Validate question bank
+        run: python scripts/validate_question_bank.py
       - name: Build Windows executable
         run: python -m PyInstaller --noconfirm --clean HALO-TOEFL-Windows.spec
       - uses: actions/upload-artifact@v4
@@ -34,26 +36,14 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: v1.0.2
-      - name: Set macOS version to 1.0.3
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          init = Path("halo/__init__.py")
-          init.write_text('__version__ = "1.0.3"\n', encoding="utf-8")
-          spec = Path("HaloTOEFL-macOS.spec")
-          text = spec.read_text(encoding="utf-8")
-          text = text.replace("'CFBundleShortVersionString': '1.0.2'", "'CFBundleShortVersionString': '1.0.3'")
-          text = text.replace("'CFBundleVersion': '3'", "'CFBundleVersion': '4'")
-          spec.write_text(text, encoding="utf-8")
-          PY
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+      - name: Validate question bank
+        run: python scripts/validate_question_bank.py
       - name: Create macOS icon
         run: |
           mkdir -p artwork/HALO-TOEFL.iconset

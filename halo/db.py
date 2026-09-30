@@ -45,6 +45,7 @@ class Store:
         CREATE TABLE IF NOT EXISTS attempts (id TEXT PRIMARY KEY, test_id TEXT, mode TEXT, sections TEXT, started TEXT, ended TEXT, status TEXT, index_position INTEGER DEFAULT 0, elapsed_seconds INTEGER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS attempt_section_timers (attempt_id TEXT, section TEXT, remaining_seconds INTEGER, updated TEXT, PRIMARY KEY(attempt_id,section));
         CREATE TABLE IF NOT EXISTS attempt_question_timers (attempt_id TEXT, question_id TEXT, remaining_seconds INTEGER, updated TEXT, PRIMARY KEY(attempt_id,question_id));
+        CREATE TABLE IF NOT EXISTS attempt_module_times (attempt_id TEXT, section TEXT, module INTEGER, elapsed_seconds INTEGER, updated TEXT, PRIMARY KEY(attempt_id,section,module));
         CREATE TABLE IF NOT EXISTS answers (attempt_id TEXT, question_id TEXT, answer TEXT, updated TEXT, PRIMARY KEY(attempt_id,question_id));
         CREATE TABLE IF NOT EXISTS speaking_recordings (attempt_id TEXT, question_id TEXT, path TEXT, duration REAL, created TEXT, PRIMARY KEY(attempt_id,question_id));
         CREATE TABLE IF NOT EXISTS writing_responses (attempt_id TEXT, question_id TEXT, response TEXT, updated TEXT, PRIMARY KEY(attempt_id,question_id));
