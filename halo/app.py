@@ -119,7 +119,7 @@ ZH = {
     "Test setup":"測驗設定", "Official section times":"官方科目時間", "Use countdown timer":"啟用倒數計時",
     "The timer counts down separately for each section.":"各科將分別依官方時長倒數。", "Start Test":"開始測驗",
     "Countdown off":"倒數計時已關閉", "Time is up":"時間到", "The section time has ended.":"本科作答時間已結束。",
-    "Reading passage":"閱讀文章", "Answer area":"作答區", "Type only the missing letters in the blank.":"請直接在文章空格內輸入缺少的字母。",
+    "Reading passage":"閱讀文章", "Task material":"題目資料", "Answer area":"作答區", "Type only the missing letters in the blank.":"請直接在文章空格內輸入缺少的字母。",
     "Complete all ten blanks directly in the passage.":"請直接在文章中完成全部十個空格。", "This word-completion group could not be displayed correctly.":"這組填詞題無法正確顯示，請重新載入題庫。",
     "Section time":"科目", "Question time":"本題", "Audio playing":"音訊播放中",
 }
@@ -496,9 +496,13 @@ class HaloApp(tk.Tk):
         else:
             progress=(f"第 {self.exam_index+1} 題，共 {total} 題  ·  模組 {q['module']}" if self.lang=="zh-TW" else f"Question {self.exam_index+1} of {total}  ·  Module {q['module']}")
         tk.Label(prog,text=progress,bg="#e8eef4",fg=INK).pack(anchor="w",padx=28,pady=9)
+        # Reserve navigation before expandable content so editors and passages
+        # can never push the Next button below the window.
+        footer=tk.Frame(self,bg="white");footer.pack(side="bottom",fill="x",padx=35,pady=(0,22))
         content=tk.Frame(self,bg="white");content.pack(fill="both",expand=True,padx=28,pady=20)
         if q["section"]=="Listening": self.play_question_audio(q, auto=True)
         split_reading=q["section"]=="Reading" and bool(q["stimulus"])
+        split_writing=q["section"]=="Writing"
         if split_reading:
             panes=tk.PanedWindow(content,orient="horizontal",sashwidth=7,sashrelief="flat",bg=BORDER,bd=0)
             panes.pack(fill="both",expand=True)
@@ -516,6 +520,18 @@ class HaloApp(tk.Tk):
             else: self.show_stimulus(left,q["stimulus"])
             question_parent=right
             tk.Label(right,text=self.tr("Answer area"),font=(UI_FONT,10,"bold"),bg="white",fg=BLUE).pack(anchor="w",pady=(0,12))
+        elif split_writing:
+            panes=tk.PanedWindow(content,orient="horizontal",sashwidth=7,sashrelief="flat",bg=BORDER,bd=0)
+            panes.pack(fill="both",expand=True)
+            left=tk.Frame(panes,bg="#f7f9fb",highlightbackground=BORDER,highlightthickness=1)
+            right=tk.Frame(panes,bg="white",padx=24,pady=10)
+            panes.add(left,stretch="always",minsize=330);panes.add(right,stretch="always",minsize=430)
+            panes.bind("<Configure>",lambda _e,p=panes:p.after_idle(lambda:p.sash_place(0,round(p.winfo_width()*0.42),1) if p.winfo_exists() and p.winfo_width()>800 else None))
+            tk.Label(left,text=self.tr("Task material"),font=(UI_FONT,10,"bold"),bg="#e8eef4",fg=NAVY,padx=14,pady=9).pack(fill="x")
+            writing_material=(q["stimulus"].strip()+"\n\n" if q["stimulus"].strip() else "")+q["prompt"].strip()
+            self.show_stimulus(left,writing_material,font_size=11)
+            question_parent=right
+            tk.Label(right,text=self.tr("Answer area"),font=(UI_FONT,10,"bold"),bg="white",fg=BLUE).pack(anchor="w",pady=(0,10))
         elif q["section"] in ("Listening","Speaking") and q["type"] in VISUAL_POOLS:
             panes=tk.PanedWindow(content,orient="horizontal",sashwidth=7,sashrelief="flat",bg=BORDER,bd=0)
             panes.pack(fill="both",expand=True)
@@ -531,11 +547,11 @@ class HaloApp(tk.Tk):
         if q["section"]=="Listening":
             tk.Label(question_parent,text=self.tr("Audio plays once during the exam."),bg="white",fg=MUTED).pack(anchor="w",pady=(0,10))
         prompt = self.tr("Complete all ten blanks directly in the passage.") if q["type"]=="Complete the Words" else q["prompt"]
-        tk.Label(question_parent,text=prompt,font=(UI_FONT,17,"bold"),bg="white",fg=INK,wraplength=520 if split_reading else 920,justify="left").pack(anchor="w",pady=(4,20))
+        if not split_writing:
+            tk.Label(question_parent,text=prompt,font=(UI_FONT,17,"bold"),bg="white",fg=INK,wraplength=520 if split_reading else 920,justify="left").pack(anchor="w",pady=(4,20))
         if q["section"]=="Writing": self.show_writing(question_parent,q)
         elif q["section"]=="Speaking": self.show_speaking(question_parent,q)
         elif q["type"]!="Complete the Words": self.show_choices(question_parent,q)
-        footer=tk.Frame(self,bg="white");footer.pack(fill="x",padx=35,pady=(0,22))
         if self.exam_index>0 and q["section"]!="Listening" and self.exam_questions[self.exam_index-1]["section"]==q["section"] and self.exam_questions[self.exam_index-1]["module"]==q["module"]:
             self.button(footer,self.tr("Back"),self.back,False).pack(side="left")
         next_text=self.tr("Finish") if (cloze_end if cloze_questions else self.exam_index)==total-1 else self.tr("Next")
@@ -621,9 +637,9 @@ class HaloApp(tk.Tk):
         holder=tk.Frame(parent,bg="#edf2f7");holder.pack(fill="both",expand=True,padx=18,pady=18)
         tk.Label(holder,image=self.current_visual,bg="#edf2f7",bd=0).pack(expand=True)
 
-    def show_stimulus(self,parent,text,height=None):
+    def show_stimulus(self,parent,text,height=None,font_size=14):
         box=tk.Frame(parent,bg="#f7f9fb");box.pack(fill="both",expand=True,padx=12,pady=12)
-        stim=tk.Text(box,height=height,wrap="word",font=(UI_FONT,14),bg="#f7f9fb",fg=INK,relief="flat",padx=12,pady=10,spacing2=3)
+        stim=tk.Text(box,height=height,wrap="word",font=(UI_FONT,font_size),bg="#f7f9fb",fg=INK,relief="flat",padx=12,pady=10,spacing2=3)
         scroll=ttk.Scrollbar(box,orient="vertical",command=stim.yview);stim.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right",fill="y");stim.pack(side="left",fill="both",expand=True)
         stim.insert("1.0",text);stim.configure(state="disabled")
