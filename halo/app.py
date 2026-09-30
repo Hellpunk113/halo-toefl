@@ -135,6 +135,13 @@ class HaloApp(tk.Tk):
         except Exception:
             pass
         self.title("HALO TOEFL")
+        if os.name == "nt":
+            try:
+                self.iconbitmap(default=str(bundle_root() / "artwork" / "HALO-TOEFL.ico"))
+                self._app_icon = ImageTk.PhotoImage(Image.open(bundle_root() / "artwork" / "HALO-TOEFL-icon.png"))
+                self.iconphoto(True, self._app_icon)
+            except Exception:
+                pass
         self.dpi_scale = max(1.0, self.winfo_fpixels("1i") / 96.0)
         self.geometry(f"{round(1180*self.dpi_scale)}x{round(760*self.dpi_scale)}")
         self.minsize(round(980*self.dpi_scale), round(650*self.dpi_scale))

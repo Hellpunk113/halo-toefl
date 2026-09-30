@@ -48,13 +48,13 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='HALO TOEFL.app',
-    icon=None,
+    icon='artwork/HALO-TOEFL.icns',
     bundle_identifier='com.haloeducationresearch.toefl',
     info_plist={
         'CFBundleDisplayName': 'HALO TOEFL',
         'CFBundleName': 'HALO TOEFL',
-        'CFBundleShortVersionString': '1.0.1',
-        'CFBundleVersion': '2',
+        'CFBundleShortVersionString': '1.0.2',
+        'CFBundleVersion': '3',
         'NSHighResolutionCapable': True,
         'NSMicrophoneUsageDescription': 'HALO TOEFL uses the microphone to record speaking practice responses.',
     },

@@ -9,6 +9,8 @@ a = Analysis(
         ('data', 'data'),
         ('resources/audio', 'resources/audio'),
         ('resources/images/people/*.jpg', 'resources/images/people'),
+        ('artwork/HALO-TOEFL.ico', 'artwork'),
+        ('artwork/HALO-TOEFL-icon.png', 'artwork'),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -39,4 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='artwork/HALO-TOEFL.ico',
 )

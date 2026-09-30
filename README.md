@@ -1,4 +1,4 @@
-# HALO TOEFL 1.0.1
+# HALO TOEFL 1.0.2
 
 **公益免費的本地新托福模考軟體，誓死消滅淘寶上動輒賣八九十塊錢的黑心商家，後續題庫會持續更新。**
 
@@ -30,6 +30,18 @@ python -m PyInstaller --noconfirm --clean HALO-TOEFL-Windows.spec
 
 ```bash
 python3 -m pip install -r requirements.txt
+mkdir -p artwork/HALO-TOEFL.iconset
+sips -z 16 16 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_16x16.png
+sips -z 32 32 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_16x16@2x.png
+sips -z 32 32 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_32x32.png
+sips -z 64 64 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_32x32@2x.png
+sips -z 128 128 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_128x128.png
+sips -z 256 256 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_128x128@2x.png
+sips -z 256 256 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_256x256.png
+sips -z 512 512 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_256x256@2x.png
+sips -z 512 512 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_512x512.png
+sips -z 1024 1024 artwork/HALO-TOEFL-icon.png --out artwork/HALO-TOEFL.iconset/icon_512x512@2x.png
+iconutil -c icns artwork/HALO-TOEFL.iconset -o artwork/HALO-TOEFL.icns
 python3 -m PyInstaller --noconfirm --clean HaloTOEFL-macOS.spec
 mkdir -p dmg
 cp -R "dist/HALO TOEFL.app" dmg/
@@ -43,7 +55,7 @@ The application stores personal data under `%LOCALAPPDATA%\HALO TOEFL` on Window
 
 ## Releases
 
-Download the Windows EXE or macOS DMG from the repository's Releases page. A `.halo-save` archive exported on one platform can be imported on the other without replacing previous attempts.
+Download the Windows EXE or macOS DMG from the repository's Releases page. A `.halo-save` archive exported by v1.0.1 or v1.0.2 on one platform can be imported on the other without replacing previous attempts.
 
 ## Source status
 
